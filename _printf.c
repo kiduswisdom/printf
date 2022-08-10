@@ -12,8 +12,9 @@ int (*format_checker(const char *format))(va_list)
 	print_t p[] = {
 		{"c", print_c},
 		{"s", print_s},
-		{"d", print_d},		
+		{"d", print_d},
 		{"i", print_i},
+		{"b", print_b},
 		{NULL, NULL}
 	};
 
