@@ -1,81 +1,78 @@
 #include "main.h"
-#include <stdarg.h>
+
+int (*printer_aux(char flag))(va_list);
 
 /**
- * format_checker - checks for a  valid format specifier
- * @format: a valid format specifier
- * Return: A pointer to valid function or NULL
- */
-int (*format_checker(const char *format))(va_list)
-{
-	int i = 0;
-	print_t p[] = {
-		{"c", print_c},
-		{"s", print_s},
-		{"d", print_d},
-		{"i", print_i},
-		{"b", print_b},
-		{"u", print_u},
-		{"o", print_o},
-		{"x", print_x},
-		{"X", print_X},
-		{NULL, NULL}
-	};
-
-	for (; p[i].t != NULL; i++)
-	{
-		if (*(p[i].t) == *format)
-			break;
-	}
-	return (p[i].f);
-}
-
-
-/**
- * _printf - function for format printing
- * @format: list of arguments to printing
- * Return: No. of characters to printing
+ * _printf - produces output according to a format.
+ * @format: format specifier.
+ * Return: number of characters printed.
  */
 int _printf(const char *format, ...)
 {
-va_list ap;
-	int (*f)(va_list);
-	unsigned int i = 0, counter = 0;
+	va_list arg;
+	int i, printed_chars = 0;
 
-	if (format == NULL)
+	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
 		return (-1);
 
-	va_start(ap, format);
-	while (format && format[i])
+	va_start(arg, format);
+	for (i = 0; format && format[i]; i++)
 	{
 		if (format[i] != '%')
 		{
 			_putchar(format[i]);
-			counter++;
+			printed_chars++;
+		}
+		else if (format[i + 1] == '\0')
+			return (-1);
+		else if (format[i + 1] == '%')
+		{
+			_putchar(format[i]);
+			printed_chars++;
 			i++;
-			continue;
+		}
+		else if (printer_aux(format[i + 1]) != NULL)
+		{
+		printed_chars = printed_chars + printer_aux(format[i + 1])(arg);
+			i++;
 		}
 		else
 		{
-			if (format[i + 1] == '%')
-			{
-				_putchar('%');
-				counter++;
-				i += 2;
-				continue;
-			}
-			else
-			{
-				f = format_checker(&format[i + 1]);
-				if (f == NULL)
-					return (-1);
-				i += 2;
-				counter += f(ap);
-				continue;
-			}
+			_putchar(format[i]);
+			printed_chars++;
 		}
-		i++;
 	}
-	va_end(ap);
-	return (counter);
+	va_end(arg);
+
+	return (printed_chars);
+}
+
+/**
+ * printer_aux - auxiliar function for print with a specific format.
+ * @flag: format specifie
+ * Return: pointer to format function or NULL.
+ */
+int (*printer_aux(char flag))(va_list)
+{
+	printer_t arr[] = {
+		{'c', print_c},
+		{'s', print_s},
+		{'i', print_i},
+		{'d', print_i},
+		{'b', print_b},
+		{'u', print_u},
+		{'o', print_o},
+		{'x', print_x},
+		{'X', print_X},
+		{'r', print_r},
+		{'R', print_R},
+		{'\0', NULL}
+	};
+	int i;
+
+	for (i = 0; arr[i].flag != '\0'; i++)
+		if (flag == arr[i].flag)
+			break;
+
+	return (arr[i].function);
 }

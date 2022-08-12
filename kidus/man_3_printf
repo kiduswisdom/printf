@@ -1,0 +1,98 @@
+PRINTF(3)                  Linux Programmer's Manual                 PRINTF(3)
+
+NAME
+       printf,  fprintf,  dprintf,  sprintf,  snprintf, vprintf, vfprintf, vd‐
+       printf, vsprintf, vsnprintf - formatted output conversion
+
+SYNOPSIS
+       #include <stdio.h>
+
+       int printf(const char *format, ...);
+       int fprintf(FILE *stream, const char *format, ...);
+       int dprintf(int fd, const char *format, ...);
+       int sprintf(char *str, const char *format, ...);
+       int snprintf(char *str, size_t size, const char *format, ...);
+
+       #include <stdarg.h>
+
+       int vprintf(const char *format, va_list ap);
+       int vfprintf(FILE *stream, const char *format, va_list ap);
+       int vdprintf(int fd, const char *format, va_list ap);
+       int vsprintf(char *str, const char *format, va_list ap);
+       int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+
+   Feature Test Macro Requirements for glibc (see feature_test_macros(7)):
+
+       snprintf(), vsnprintf():
+           _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE ||
+               || /* Glibc versions <= 2.19: */ _BSD_SOURCE
+
+       dprintf(), vdprintf():
+           Since glibc 2.10:
+               _POSIX_C_SOURCE >= 200809L
+           Before glibc 2.10:
+               _GNU_SOURCE
+
+DESCRIPTION
+       The functions in the printf() family produce output according to a for‐
+DESCRIPTION
+       The functions in the printf() family produce output according to a for‐
+       mat  as  described  below.   The functions printf() and vprintf() write
+       output to stdout, the standard output stream; fprintf() and  vfprintf()
+       write  output  to  the  given  output  stream;  sprintf(),  snprintf(),
+       vsprintf(), and vsnprintf() write to the character string str.
+
+       The function dprintf() is the same as fprintf() except that it  outputs
+       to a file descriptor, fd, instead of to a stdio stream.
+
+       The  functions snprintf() and vsnprintf() write at most size bytes (in‐
+       cluding the terminating null byte ('\0')) to str.
+
+       The  functions  vprintf(),  vfprintf(),  vdprintf(),  vsprintf(),   vs‐
+       nprintf()   are   equivalent  to  the  functions  printf(),  fprintf(),
+       dprintf(), sprintf(), snprintf(), respectively, except  that  they  are
+       called with a va_list instead of a variable number of arguments.  These
+       functions do not call the va_end macro.  Because they invoke the va_arg
+       macro, the value of ap is undefined after the call.  See stdarg(3).
+
+       All  of  these functions write the output under the control of a format
+       string that specifies how subsequent arguments (or  arguments  accessed
+       via the variable-length argument facilities of stdarg(3)) are converted
+       for output.
+
+       C99 and POSIX.1-2001 specify that the results are undefined if  a  call
+       to  sprintf(), snprintf(), vsprintf(), or vsnprintf() would cause copy‐
+       ing to take place between objects that overlap  (e.g.,  if  the  target
+       string  array and one of the supplied input arguments refer to the same
+       buffer).  See NOTES.
+
+   Format of the format string
+       The format string is a character string, beginning and  ending  in  its
+       initial  shift state, if any.  The format string is composed of zero or
+ Manual page printf(3) line 33 (press h for help or q to quit)
+lag characters
+       The character % is followed by zero or more of the following flags:
+
+       #      The  value  should  be  converted to an "alternate form".  For o
+              conversions, the first character of the output  string  is  made
+              zero (by prefixing a 0 if it was not zero already).  For x and X
+              conversions, a nonzero result has the string "0x" (or "0X" for X
+              conversions)  prepended  to  it.  For a, A, e, E, f, F, g, and G
+              conversions, the result will always  contain  a  decimal  point,
+              even  if  no digits follow it (normally, a decimal point appears
+              in the results of those conversions only if  a  digit  follows).
+              For g and G conversions, trailing zeros are not removed from the
+              result as they would otherwise be.  For other  conversions,  the
+              result is undefined.
+
+       0      The value should be zero padded.  For d, i, o, u, x, X, a, A, e,
+              E, f, F, g, and G conversions, the converted value is padded  on
+              the  left  with  zeros rather than blanks.  If the 0 and - flags
+              both appear, the 0 flag is ignored.  If  a  precision  is  given
+              with  a numeric conversion (d, i, o, u, x, and X), the 0 flag is
+              ignored.  For other conversions, the behavior is undefined.
+
+       -      The converted value is to be left adjusted on the  field  bound‐
+              ary.  (The default is right justification.)  The converted value
+              is padded on the right with blanks, rather than on the left with
+              blanks or zeros.  A - overrides a 0 if both are given.
